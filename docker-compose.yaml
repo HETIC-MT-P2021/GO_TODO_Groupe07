@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_DB: "${DB_NAME}"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+
+  app:
+    build: .
+    environment:
+      GIN_MODE: "release"
+    volumes:
+      - .:/app
+    working_dir: /app
+    ports:
+      - "${API_PORT}:8080"
+    command: go run main.go
+    links:
+      - db
