@@ -1,4 +1,4 @@
-module packages.hetic.net/gosql
+module github.com/HETIC-MT-P2021/GO_TODO_Groupe07
 
 go 1.15
 
