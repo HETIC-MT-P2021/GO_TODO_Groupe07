@@ -1,6 +1,20 @@
 # GO_TODO_Groupe07
 GO TODO is  an app that reminds you of uncompleted tasks at the end of each day.
 
+## Libraries 
+[discordgo](https://gowalker.org/github.com/bwmarrin/discordgo)
+
+[openweather](https://godoc.org/github.com/briandowns/openweathermap)
+
+## Features 
+- Return all TODO
+- Save new TODO
+- Delete a TODO
+- 
+## Technical Choices
+
+Feel free to discuss with any contributor about the technical choices that were made.
+You can find the documentation [here](https://drive.google.com/drive/folders/1b88SQnlpN3IMJyXnK7YvlWW-aaoHSPWt?usp=sharing)
 
 ## Contributing
 
