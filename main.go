@@ -2,14 +2,13 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 
-	"github.com/joho/godotenv"
-
-	"github.com/HETIC-MT-P2021/GO_TODO_Groupe07/models"
+	"github.com/HETIC-MT-P2021/GO_TODO_Groupe07/bot"
+	"github.com/HETIC-MT-P2021/GO_TODO_Groupe07/config"
 )
 
 func main() {
+	/*
 	fmt.Println("Starting Bot")
 
 	env, _ := godotenv.Read(".env")
@@ -23,4 +22,23 @@ func main() {
 	models.ConnectToDB(env["DB_HOST"], env["DB_NAME"], env["DB_USER"], env["DB_PASSWORD"], dbPort)
 
 	fmt.Println("Bot is ready")
+*/
+	err := config.ReadConfig()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+
+	bot.Start()
+
+	<-make(chan struct{})
+	return
+
+
+
+
+
+
 }
