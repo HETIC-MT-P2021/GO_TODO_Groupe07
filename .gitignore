@@ -1,3 +1,4 @@
+config.json
 .env
 ./app/tmp
 ./consumer/tmp
@@ -7,5 +8,3 @@
 .DS_Store
 fake-smtp-emails
 postgres-data
-config.json
-GoBot

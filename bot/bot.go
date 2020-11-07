@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"strings"
 
 	"github.com/HETIC-MT-P2021/GO_TODO_Groupe07/config"
 )
@@ -39,16 +40,19 @@ func Start() {
 }
 
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if strings.HasPrefix(m.Content, config.BotPrefix){
+		if m.Author.ID == BotID {
+			return
+		}
 
-	if m.Author.ID == BotID {
-		return
+		if m.Content == "!ping" {
+			_, _ = s.ChannelMessageSend(m.ChannelID, "pong")
+		}
+		// If the message is "pong" reply with "Ping!"
+		if m.Content == "pong" {
+			s.ChannelMessageSend(m.ChannelID, "Ping!")
+		}
+
 	}
 
-	if m.Content == "ping" {
-		_, _ = s.ChannelMessageSend(m.ChannelID, "😄")
-	}
-	// If the message is "pong" reply with "Ping!"
-	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	}
 }
