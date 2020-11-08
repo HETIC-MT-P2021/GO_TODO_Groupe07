@@ -1,11 +1,14 @@
 package bot
 
 import (
+	"context"
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	"strings"
 
+	"github.com/bwmarrin/discordgo"
+
 	"github.com/HETIC-MT-P2021/GO_TODO_Groupe07/config"
+	"github.com/HETIC-MT-P2021/GO_TODO_Groupe07/models"
 )
 
 var BotID string
@@ -39,7 +42,6 @@ func Start() {
 	fmt.Println("Tout roule!!")
 }
 
-
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, config.BotPrefix) {
@@ -52,11 +54,74 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 	}
+	content := strings.Split(m.Content, " ")
+	command := content[0]
+	ctx := context.Background()
 
-	if m.Content == "pongg" {
+	if command == "!pong" {
 		s.ChannelMessageSend(m.ChannelID, "Ping!")
 	}
-	if m.Content == "hey" {
+	if command == "!hey" {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "✅")
+	}
+	if command == "!remindme" {
+		var message string
+
+		for _, val := range content[1:] {
+			message += val
+		}
+		userID := fmt.Sprintf("%s-%s", m.Author.Username, m.Author.ID)
+
+		_, err := models.InsertActions(userID, message)
+
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "DB error")
+
+			return
+		}
+		s.MessageReactionAdd(m.ChannelID, m.ID, "✅")
+
+	}
+
+	if command == "!allremind" {
+		userID := fmt.Sprintf("%s-%s", m.Author.Username, m.Author.ID)
+
+		actions, err := models.GetUserActions(ctx, userID)
+
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s", err))
+
+			return
+		}
+		for i := 0; i < len(actions); i++ {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Remind ID: %d, Content: %s", actions[i].ActionID, actions[i].Content))
+		}
+		s.MessageReactionAdd(m.ChannelID, m.ID, "✅")
+	}
+
+	if command == "!lastremind" {
+		userID := fmt.Sprintf("%s-%s", m.Author.Username, m.Author.ID)
+
+		action, err := models.GetUserLastAction(userID)
+
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s", err))
+
+			return
+		}
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Remind ID: %d, Content: %s", action.ActionID, action.Content))
+		s.MessageReactionAdd(m.ChannelID, m.ID, "✅")
+	}
+
+	if command == "!rmremind" {
+		err := models.DeleteAction(ctx, content[1])
+
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s", err))
+
+			return
+		}
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Deleted Remind ID: %s", content[1]))
 		s.MessageReactionAdd(m.ChannelID, m.ID, "✅")
 	}
 }

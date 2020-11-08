@@ -5,5 +5,5 @@ CREATE TABLE actions (
   callback_at DATE,
   localisation VARCHAR (255),
 
-  user_id string NOT NULL
+  user_id VARCHAR (128) NOT NULL
 );

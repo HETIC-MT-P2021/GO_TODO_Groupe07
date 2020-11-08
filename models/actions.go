@@ -16,7 +16,7 @@ type Action struct {
 func InsertActions(userID string, content string) (Action, error) {
 	insertSQLStatement := `
 	INSERT INTO actions (content, user_id)
-	VALUES (?, ?) RETURNING action_id;`
+	VALUES ($1, $2) RETURNING action_id;`
 
 	var action Action
 
@@ -35,7 +35,7 @@ func InsertActions(userID string, content string) (Action, error) {
 
 // GetUserLastAction handle request to add a new action to the db
 func GetUserLastAction(userID string) (Action, error) {
-	selectSQL := `SELECT action_id, content FROM actions WHERE user_id=? ORDER BY action_id DESC LIMIT 1;`
+	selectSQL := `SELECT action_id, content FROM actions WHERE user_id=$1 ORDER BY action_id DESC LIMIT 1;`
 
 	var action Action
 
@@ -53,7 +53,7 @@ func GetUserLastAction(userID string) (Action, error) {
 
 // GetUserActions handle request to add a new action to the db
 func GetUserActions(ctx context.Context, userID string) ([]Action, error) {
-	selectSQL := `SELECT action_id, content FROM actions WHERE user_id=? ORDER BY action_id ASC;`
+	selectSQL := `SELECT action_id, content FROM actions WHERE user_id=$1 ORDER BY action_id ASC;`
 
 	var actions []Action
 
@@ -82,8 +82,8 @@ func GetUserActions(ctx context.Context, userID string) ([]Action, error) {
 }
 
 // DeleteAction handle request to add a new action to the db
-func DeleteAction(ctx context.Context, actionID int) error {
-	deleteSQL := `DELETE actions WHERE action_id=?;`
+func DeleteAction(ctx context.Context, actionID string) error {
+	deleteSQL := `DELETE FROM actions WHERE action_id=$1;`
 
 	_, queryErr := db.QueryContext(ctx, deleteSQL, actionID)
 
