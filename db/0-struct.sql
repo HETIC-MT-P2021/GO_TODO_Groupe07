@@ -1,5 +1,5 @@
-CREATE TABLE actions (
-  action_id SERIAL PRIMARY KEY,
+CREATE TABLE reminds (
+  remind_id SERIAL PRIMARY KEY,
 
   content VARCHAR (255) NOT NULL,
   callback_at DATE,
