@@ -39,8 +39,10 @@ func Start() {
 	fmt.Println("Tout roule!!")
 }
 
+
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if strings.HasPrefix(m.Content, config.BotPrefix){
+
+	if strings.HasPrefix(m.Content, config.BotPrefix) {
 		if m.Author.ID == BotID {
 			return
 		}
@@ -48,11 +50,13 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if m.Content == "!ping" {
 			_, _ = s.ChannelMessageSend(m.ChannelID, "pong")
 		}
-		// If the message is "pong" reply with "Ping!"
-		if m.Content == "pong" {
-			s.ChannelMessageSend(m.ChannelID, "Ping!")
-		}
 
 	}
 
+	if m.Content == "pongg" {
+		s.ChannelMessageSend(m.ChannelID, "Ping!")
+	}
+	if m.Content == "hey" {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "✅")
+	}
 }
