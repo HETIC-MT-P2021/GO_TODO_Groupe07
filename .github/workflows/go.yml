@@ -32,6 +32,9 @@ jobs:
 
     - name: Build
       run: go build -v .
+      
+    - name: Lint
+      run: gofmt -e .
 
     - name: Test
       run: go test -v .
