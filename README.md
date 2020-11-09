@@ -15,6 +15,8 @@ git clone https://github.com/HETIC-MT-P2021/GO_TODO_Groupe07.git
 cd GO_TODO_Groupe07
 ```
 
+- Make sure you have an `.env` file that is matching the example
+
 - Start application by typing
 
 ```bash
