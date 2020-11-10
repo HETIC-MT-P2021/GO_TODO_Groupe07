@@ -42,7 +42,7 @@ func Start() {
 	fmt.Println("Tout roule!!")
 }
 
-func shouldSkipMessage(m *discordgo.MessageCreate) bool {
+func ShouldSkipMessage(m *discordgo.MessageCreate) bool {
 	if strings.HasPrefix(m.Content, config.BotPrefix) {
 		if m.Author.ID == BotID {
 			return true
@@ -61,7 +61,7 @@ func getParamsFromMessage(m *discordgo.MessageCreate) ([]string, string, context
 }
 
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if shouldSkipMessage(m) {
+	if ShouldSkipMessage(m) {
 		return
 	}
 
