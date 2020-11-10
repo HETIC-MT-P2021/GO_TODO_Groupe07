@@ -7,8 +7,8 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
+	"github.com/HETIC-MT-P2021/GO_TODO_Groupe07/commands"
 	"github.com/HETIC-MT-P2021/GO_TODO_Groupe07/config"
-	"github.com/HETIC-MT-P2021/GO_TODO_Groupe07/models"
 )
 
 var BotID string
@@ -42,84 +42,51 @@ func Start() {
 	fmt.Println("Tout roule!!")
 }
 
-func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-
+func shouldSkipMessage(m *discordgo.MessageCreate) bool {
 	if strings.HasPrefix(m.Content, config.BotPrefix) {
 		if m.Author.ID == BotID {
-			return
+			return true
 		}
-
-		if m.Content == "!ping" {
-			_, _ = s.ChannelMessageSend(m.ChannelID, "pong")
-		}
-
+		return false
 	}
+	return true
+}
+
+func getParamsFromMessage(m *discordgo.MessageCreate) ([]string, string, context.Context) {
 	content := strings.Split(m.Content, " ")
 	command := content[0]
 	ctx := context.Background()
 
-	if command == "!pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	}
-	if command == "!hey" {
-		s.MessageReactionAdd(m.ChannelID, m.ID, "✅")
-	}
+	return content, command, ctx
+}
 
-	if command == "!remindme" {
-		var message string
-
-		for _, val := range content[1:] {
-			message += fmt.Sprintf("%s ", val)
-		}
-		userID := fmt.Sprintf("%s-%s", m.Author.Username, m.Author.ID)
-
-		_, err := models.InsertReminds(userID, message)
-
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "DB error")
-			s.MessageReactionAdd(m.ChannelID, m.ID, "❌")
-			return
-		}
-		s.MessageReactionAdd(m.ChannelID, m.ID, "✅")
-
+func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if shouldSkipMessage(m) {
+		return
 	}
 
-	if command == "!allremind" {
-		userID := fmt.Sprintf("%s-%s", m.Author.Username, m.Author.ID)
+	content, command, ctx := getParamsFromMessage(m)
 
-		reminds, err := models.GetUserReminds(ctx, userID)
+	switch command {
+	case "!ping":
+		commands.HandlePingCommand(s, m)
 
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s", err))
-			s.MessageReactionAdd(m.ChannelID, m.ID, "❌")
-			return
-		}
-		for i := 0; i < len(reminds); i++ {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Remind ID: %d, Content: %s", reminds[i].RemindID, reminds[i].Content))
-		}
-	}
+	case "!remindme":
+		commands.HandleAddRemindCommand(s, m, content)
 
-	if command == "!lastremind" {
-		userID := fmt.Sprintf("%s-%s", m.Author.Username, m.Author.ID)
+	case "!allremind":
+		commands.HandleGetRemindsCommand(s, m, ctx)
 
-		remind, err := models.GetUserLastRemind(userID)
+	case "!lastremind":
+		commands.HandleGetLastRemindCommand(s, m)
 
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s", err))
-			s.MessageReactionAdd(m.ChannelID, m.ID, "❌")
-			return
-		}
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Remind ID: %d, Content: %s", remind.RemindID, remind.Content))
-	}
+	case "!rmremind":
+		commands.HandleDeleteRemindCommand(s, m, content, ctx)
 
-	if command == "!rmremind" {
-		err := models.DeleteRemind(ctx, content[1])
+	case "!help":
+		commands.HandleHelpCommand(s, m)
 
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s", err))
-			s.MessageReactionAdd(m.ChannelID, m.ID, "❌")
-			return
-		}
-		s.MessageReactionAdd(m.ChannelID, m.ID, "✅")
+	default:
+		commands.HandleDefaultCommand(s, m)
 	}
 }
