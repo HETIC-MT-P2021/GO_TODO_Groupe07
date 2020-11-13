@@ -49,3 +49,27 @@ func TestShouldSkipMessage(t *testing.T) {
 		}
 	}
 }
+
+// TestStart tests the Start() function without any arguments.  This should return
+// a valid Session{} struct and no errors.
+func TestStart(t *testing.T) {
+
+	_, err := discordgo.New()
+	if err != nil {
+		t.Errorf("New() returned error: %+v", err)
+	}
+}
+
+// TestInvalidToken tests the New() function with an invalid token
+func TestInvalidToken(t *testing.T) {
+	d, err := discordgo.New("asjkldhflkjasdh")
+	if err != nil {
+		t.Fatalf("New(InvalidToken) returned error: %+v", err)
+	}
+
+	// New with just a token does not do any communication, so attempt an api call.
+	_, err = d.UserSettings()
+	if err == nil {
+		t.Errorf("New(InvalidToken), d.UserSettings returned nil error.")
+	}
+}
