@@ -8,10 +8,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// HandlePingCommand is the basic command to know if the server is Up
 func HandlePingCommand(s *discordgo.Session, m *discordgo.MessageCreate) {
 	_, _ = s.ChannelMessageSend(m.ChannelID, "pong")
 }
 
+// HandleAddRemindCommand insert a new remind for a user
 func HandleAddRemindCommand(s *discordgo.Session, m *discordgo.MessageCreate, content []string) {
 	var message string
 
@@ -20,7 +22,7 @@ func HandleAddRemindCommand(s *discordgo.Session, m *discordgo.MessageCreate, co
 	}
 	userID := fmt.Sprintf("%s-%s", m.Author.Username, m.Author.ID)
 
-	_, err := models.InsertReminds(userID, message)
+	_, err := models.InsertRemind(userID, message)
 
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, "DB error")
@@ -30,7 +32,8 @@ func HandleAddRemindCommand(s *discordgo.Session, m *discordgo.MessageCreate, co
 	s.MessageReactionAdd(m.ChannelID, m.ID, "✅")
 }
 
-func HandleGetRemindsCommand(s *discordgo.Session, m *discordgo.MessageCreate, ctx context.Context) {
+// HandleGetRemindsCommand get all the user's reminds
+func HandleGetRemindsCommand(ctx context.Context, s *discordgo.Session, m *discordgo.MessageCreate) {
 	userID := fmt.Sprintf("%s-%s", m.Author.Username, m.Author.ID)
 
 	reminds, err := models.GetUserReminds(ctx, userID)
@@ -45,6 +48,7 @@ func HandleGetRemindsCommand(s *discordgo.Session, m *discordgo.MessageCreate, c
 	}
 }
 
+// HandleGetLastRemindCommand get the user's last remind
 func HandleGetLastRemindCommand(s *discordgo.Session, m *discordgo.MessageCreate) {
 	userID := fmt.Sprintf("%s-%s", m.Author.Username, m.Author.ID)
 
@@ -58,25 +62,33 @@ func HandleGetLastRemindCommand(s *discordgo.Session, m *discordgo.MessageCreate
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Remind ID: %d, Content: %s", remind.RemindID, remind.Content))
 }
 
-func HandleDeleteRemindCommand(s *discordgo.Session, m *discordgo.MessageCreate, content []string, ctx context.Context) {
+// HandleDeleteRemindCommand handles deletion of user's remind
+func HandleDeleteRemindCommand(ctx context.Context, s *discordgo.Session, m *discordgo.MessageCreate, content []string) {
 	userID := fmt.Sprintf("%s-%s", m.Author.Username, m.Author.ID)
 
-	remind, err := models.GetUserLastRemind(userID)
+	err := models.DeleteRemind(ctx, content[1], userID)
 
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s", err))
 		s.MessageReactionAdd(m.ChannelID, m.ID, "❌")
 		return
 	}
-	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Remind ID: %d, Content: %s", remind.RemindID, remind.Content))
+	s.MessageReactionAdd(m.ChannelID, m.ID, "✅")
 }
 
+// HandleHelpCommand handles the help message
 func HandleHelpCommand(s *discordgo.Session, m *discordgo.MessageCreate) {
-	helpContent := "Hello there ! \n Here are the commands you can enter:\n - !remindme 'string', will save a reminder for you with the content after\n - !allremind, will gets all your reminder\n - !lastremind, will get the last remind you entered\n - !rmremind 'remind_ID', will delete selected remind"
+	helpContent := `Hello there ! 
+	 Here are the commands you can enter:
+	 - !remindme 'string', will save a reminder for you with the content after
+	 - !allremind, will gets all your reminder
+	 - !lastremind, will get the last remind you entered
+	 - !rmremind 'remind_ID', will delete selected remind`
 
 	s.ChannelMessageSend(m.ChannelID, helpContent)
 }
 
+// HandleDefaultCommand handles commands that couldn't be recognized
 func HandleDefaultCommand(s *discordgo.Session, m *discordgo.MessageCreate) {
-	s.ChannelMessageSend(m.ChannelID, "Couldn't understand your request, type !todohelp for more information")
+	s.ChannelMessageSend(m.ChannelID, "Couldn't understand your request, type !todohelp for more informations")
 }

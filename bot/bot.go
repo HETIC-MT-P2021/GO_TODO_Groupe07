@@ -75,13 +75,13 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		commands.HandleAddRemindCommand(s, m, content)
 
 	case "!allremind":
-		commands.HandleGetRemindsCommand(s, m, ctx)
+		commands.HandleGetRemindsCommand(ctx, s, m)
 
 	case "!lastremind":
 		commands.HandleGetLastRemindCommand(s, m)
 
 	case "!rmremind":
-		commands.HandleDeleteRemindCommand(s, m, content, ctx)
+		commands.HandleDeleteRemindCommand(ctx, s, m, content)
 
 	case "!help":
 		commands.HandleHelpCommand(s, m)
