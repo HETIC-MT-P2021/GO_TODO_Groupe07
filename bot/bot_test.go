@@ -11,6 +11,7 @@ import (
 
 
 
+
 func generateFakeMessage(content string, authorID string) discordgo.MessageCreate {
 	var messageCreate discordgo.MessageCreate
 	var message discordgo.Message
@@ -64,6 +65,7 @@ func TestStart(t *testing.T) {
 	}
 }
 
+
 // TestInvalidToken tests the New() function with an invalid token
 func TestInvalidToken(t *testing.T) {
 	d, err := discordgo.New("asjkldhflkjasdh")
@@ -78,6 +80,28 @@ func TestInvalidToken(t *testing.T) {
 	}
 }
 
+// TestNewToken tests the New() function with a Token.
+func TestNewToken(t *testing.T) {
+
+	if config.Token == "" {
+		t.Skip("Skipping New(token), token not set")
+	}
+
+	d, err := discordgo.New(config.Token)
+	if err != nil {
+		t.Fatalf("New(envToken) returned error: %+v", err)
+	}
+
+	if d == nil {
+		t.Fatal("New(envToken), d is nil, should be Session{}")
+	}
+
+	if d.Token == "" {
+		t.Fatal("discordgo.New(config.Token), d.Token is empty, should be a valid Token.")
+	}
+}
+
+
 func TestGetParamsFromMessage(t *testing.T) {
 	BotID = "420"
 	config.BotPrefix = "!"
@@ -91,3 +115,4 @@ func TestGetParamsFromMessage(t *testing.T) {
 		t.Errorf("Test of getParamsFromMessage for %s was incorrect.", content)
 	}
 }
+

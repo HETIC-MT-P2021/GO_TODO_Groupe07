@@ -90,3 +90,4 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		commands.HandleDefaultCommand(s, m)
 	}
 }
+
