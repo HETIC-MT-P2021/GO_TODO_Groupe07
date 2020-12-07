@@ -12,8 +12,8 @@ type Remind struct {
 	UserID   string
 }
 
-// InsertReminds handle request to add a new remind to the db
-func InsertReminds(userID string, content string) (Remind, error) {
+// InsertRemind handle request to add a new remind to the db
+func InsertRemind(userID string, content string) (Remind, error) {
 	insertSQLStatement := `
 	INSERT INTO reminds (content, user_id)
 	 VALUES ($1, $2) 
@@ -34,7 +34,7 @@ func InsertReminds(userID string, content string) (Remind, error) {
 	return remind, nil
 }
 
-// GetUserLastRemind handle request to add a new remind to the db
+// GetUserLastRemind handle request to get the last reminder from the user
 func GetUserLastRemind(userID string) (Remind, error) {
 	selectSQL := `
 	SELECT remind_id, content
@@ -49,6 +49,9 @@ func GetUserLastRemind(userID string) (Remind, error) {
 	err := row.Scan(&remind.RemindID, &remind.Content)
 
 	if err != nil {
+		if remind.Content == "" {
+			return remind, errors.New("No remind found for this user")
+		}
 		return remind, err
 	}
 
@@ -57,7 +60,7 @@ func GetUserLastRemind(userID string) (Remind, error) {
 	return remind, nil
 }
 
-// GetUserReminds handle request to add a new remind to the db
+// GetUserReminds handle request to get reminds from the db
 func GetUserReminds(ctx context.Context, userID string) ([]Remind, error) {
 	selectSQL := `
 	SELECT remind_id, content
@@ -67,10 +70,10 @@ func GetUserReminds(ctx context.Context, userID string) ([]Remind, error) {
 
 	var reminds []Remind
 
-	rows, queryErr := db.QueryContext(ctx, selectSQL, userID)
+	rows, err := db.QueryContext(ctx, selectSQL, userID)
 
-	if queryErr != nil {
-		return reminds, queryErr
+	if err != nil {
+		return reminds, err
 	}
 
 	for rows.Next() {
@@ -91,17 +94,18 @@ func GetUserReminds(ctx context.Context, userID string) ([]Remind, error) {
 	return reminds, nil
 }
 
-// DeleteRemind handle request to add a new remind to the db
-func DeleteRemind(ctx context.Context, remindID string) error {
+// DeleteRemind handle request to delete a remind from the db
+func DeleteRemind(ctx context.Context, remindID string, userID string) error {
 	deleteSQL := `
 	DELETE 
 	 FROM reminds 
-	 WHERE remind_id=$1;`
+	 WHERE remind_id = $1 
+	 AND user_id = $2;`
 
-	_, queryErr := db.QueryContext(ctx, deleteSQL, remindID)
+	_, err := db.QueryContext(ctx, deleteSQL, remindID, userID)
 
-	if queryErr != nil {
-		return queryErr
+	if err != nil {
+		return err
 	}
 
 	return nil
