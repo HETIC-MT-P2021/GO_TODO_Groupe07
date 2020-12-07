@@ -3,9 +3,12 @@ package bot
 import (
 	"testing"
 
-	"github.com/HETIC-MT-P2021/GO_TODO_Groupe07/config"
 	"github.com/bwmarrin/discordgo"
+
+	"github.com/HETIC-MT-P2021/GO_TODO_Groupe07/config"
 )
+
+
 
 func generateFakeMessage(content string, authorID string) discordgo.MessageCreate {
 	var messageCreate discordgo.MessageCreate
