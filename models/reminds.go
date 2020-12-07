@@ -16,7 +16,8 @@ type Remind struct {
 func InsertReminds(userID string, content string) (Remind, error) {
 	insertSQLStatement := `
 	INSERT INTO reminds (content, user_id)
-	VALUES ($1, $2) RETURNING remind_id;`
+	 VALUES ($1, $2) 
+	 RETURNING remind_id;`
 
 	var remind Remind
 
@@ -35,7 +36,12 @@ func InsertReminds(userID string, content string) (Remind, error) {
 
 // GetUserLastRemind handle request to add a new remind to the db
 func GetUserLastRemind(userID string) (Remind, error) {
-	selectSQL := `SELECT remind_id, content FROM reminds WHERE user_id=$1 ORDER BY remind_id DESC LIMIT 1;`
+	selectSQL := `
+	SELECT remind_id, content
+	 FROM reminds
+	 WHERE user_id=$1 
+	 ORDER BY remind_id DESC 
+	 LIMIT 1;`
 
 	var remind Remind
 
@@ -53,7 +59,11 @@ func GetUserLastRemind(userID string) (Remind, error) {
 
 // GetUserReminds handle request to add a new remind to the db
 func GetUserReminds(ctx context.Context, userID string) ([]Remind, error) {
-	selectSQL := `SELECT remind_id, content FROM reminds WHERE user_id=$1 ORDER BY remind_id ASC;`
+	selectSQL := `
+	SELECT remind_id, content
+	 FROM reminds
+	 WHERE user_id=$1 
+	 ORDER BY remind_id ASC;`
 
 	var reminds []Remind
 
@@ -83,7 +93,10 @@ func GetUserReminds(ctx context.Context, userID string) ([]Remind, error) {
 
 // DeleteRemind handle request to add a new remind to the db
 func DeleteRemind(ctx context.Context, remindID string) error {
-	deleteSQL := `DELETE FROM reminds WHERE remind_id=$1;`
+	deleteSQL := `
+	DELETE 
+	 FROM reminds 
+	 WHERE remind_id=$1;`
 
 	_, queryErr := db.QueryContext(ctx, deleteSQL, remindID)
 

@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"context"
 	"testing"
 
 	"github.com/bwmarrin/discordgo"
@@ -74,5 +75,19 @@ func TestInvalidToken(t *testing.T) {
 	_, err = d.UserSettings()
 	if err == nil {
 		t.Errorf("New(InvalidToken), d.UserSettings returned nil error.")
+	}
+}
+
+func TestGetParamsFromMessage(t *testing.T) {
+	BotID = "420"
+	config.BotPrefix = "!"
+	ctxTest := context.Background()
+
+	messageWithoutCommand := generateFakeMessage("Command yes", "666")
+
+	content, command, ctx := getParamsFromMessage(&messageWithoutCommand)
+
+	if content[1] != "yes" || command != "Command" || ctx != ctxTest {
+		t.Errorf("Test of getParamsFromMessage for %s was incorrect.", content)
 	}
 }
