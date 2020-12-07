@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"log"
+	"regexp"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -28,15 +29,16 @@ func TestGetUserLastRemind(t *testing.T) {
 	defer fakeDb.Close()
 	db = fakeDb
 
-	query := "SELECT remind_id, content FROM reminds WHERE user_id=$1 ORDER BY remind_id DESC LIMIT 1;"
-	rows := sqlmock.NewRows([]string{"remind_id", "content"})
+	query := regexp.QuoteMeta(`SELECT remind_id, content FROM reminds WHERE user_id=$1 ORDER BY remind_id DESC LIMIT 1;`)
+	rows := sqlmock.NewRows([]string{"remind_id", "content"}).AddRow(r.RemindID, r.Content)
+
 	mock.ExpectQuery(query).WithArgs(r.UserID).WillReturnRows(rows)
 
 	remind, err := GetUserLastRemind(r.UserID)
 
 	if err != nil {
 		t.Errorf("GetUserLastRemind returned an error: %s", err)
-	} else if &remind != r {
+	} else if remind != *r {
 		t.Errorf("GetUserLastRemind didn't return a valid remind")
 	}
 }
@@ -46,8 +48,8 @@ func TestInsertReminds(t *testing.T) {
 	defer fakeDb.Close()
 	db = fakeDb
 
-	query := "INSERT INTO reminds (content, user_id) VALUES ($1, $2) RETURNING remind_id;"
-	rows := sqlmock.NewRows([]string{"remind_id"})
+	query := regexp.QuoteMeta("INSERT INTO reminds (content, user_id) VALUES ($1, $2) RETURNING remind_id;")
+	rows := sqlmock.NewRows([]string{"remind_id"}).AddRow(0)
 
 	mock.ExpectQuery(query).
 		WithArgs(r.Content, r.UserID).
@@ -57,7 +59,7 @@ func TestInsertReminds(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("InsertReminds returned an error: %s", err)
-	} else if &insertedRemind != r {
+	} else if insertedRemind != *r {
 		t.Errorf("InsertReminds didn't return a valid remind")
 	}
 }
