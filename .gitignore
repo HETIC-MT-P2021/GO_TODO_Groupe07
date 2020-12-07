@@ -1,0 +1,10 @@
+.idea/
+.env
+./app/tmp
+./consumer/tmp
+**/*/assets
+**/*/bin
+/vendor
+.DS_Store
+fake-smtp-emails
+postgres-data
