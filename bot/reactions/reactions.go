@@ -1,5 +1,5 @@
 package reactions
 
-type GoToDo interface {
+type reactions interface {
 	MessageReactionAdd(string, string, string)  error
 }
