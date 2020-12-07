@@ -23,21 +23,41 @@ func NewMock() (*sql.DB, sqlmock.Sqlmock) {
 	return fakeDb, mock
 }
 
+func TestGetUserLastRemind(t *testing.T) {
+	fakeDb, mock := NewMock()
+	defer fakeDb.Close()
+	db = fakeDb
+
+	query := "SELECT remind_id, content FROM reminds WHERE user_id=$1 ORDER BY remind_id DESC LIMIT 1;"
+	rows := sqlmock.NewRows([]string{"remind_id", "content"})
+	mock.ExpectQuery(query).WithArgs(r.UserID).WillReturnRows(rows)
+
+	remind, err := GetUserLastRemind(r.UserID)
+
+	if err != nil {
+		t.Errorf("GetUserLastRemind returned an error: %s", err)
+	} else if &remind != r {
+		t.Errorf("GetUserLastRemind didn't return a valid remind")
+	}
+}
+
 func TestInsertReminds(t *testing.T) {
 	fakeDb, mock := NewMock()
 	defer fakeDb.Close()
-
 	db = fakeDb
-	mock.ExpectExec("INSERT INTO reminds (content, user_id) VALUES ($1, $2) RETURNING remind_id;").
+
+	query := "INSERT INTO reminds (content, user_id) VALUES ($1, $2) RETURNING remind_id;"
+	rows := sqlmock.NewRows([]string{"remind_id"})
+
+	mock.ExpectQuery(query).
 		WithArgs(r.Content, r.UserID).
-		WillReturnResult(sqlmock.NewResult(1, 1))
+		WillReturnRows(rows)
 
 	insertedRemind, err := InsertReminds(r.UserID, r.Content)
 
 	if err != nil {
 		t.Errorf("InsertReminds returned an error: %s", err)
-	}
-	if &insertedRemind != r {
+	} else if &insertedRemind != r {
 		t.Errorf("InsertReminds didn't return a valid remind")
 	}
 }
