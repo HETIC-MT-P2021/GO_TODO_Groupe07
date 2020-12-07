@@ -18,7 +18,7 @@ var r = &Remind{
 func NewMock() (*sql.DB, sqlmock.Sqlmock) {
 	fakeDb, mock, err := sqlmock.New()
 	if err != nil {
-		log.Fatalf("Error on DB ini: '%s'", err)
+		log.Fatalf("Error on DB init: '%s'", err)
 	}
 
 	return fakeDb, mock
@@ -43,7 +43,7 @@ func TestGetUserLastRemind(t *testing.T) {
 	}
 }
 
-func TestInsertReminds(t *testing.T) {
+func TestInsertRemind(t *testing.T) {
 	fakeDb, mock := NewMock()
 	defer fakeDb.Close()
 	db = fakeDb
@@ -55,11 +55,11 @@ func TestInsertReminds(t *testing.T) {
 		WithArgs(r.Content, r.UserID).
 		WillReturnRows(rows)
 
-	insertedRemind, err := InsertReminds(r.UserID, r.Content)
+	insertedRemind, err := InsertRemind(r.UserID, r.Content)
 
 	if err != nil {
-		t.Errorf("InsertReminds returned an error: %s", err)
+		t.Errorf("InsertRemind returned an error: %s", err)
 	} else if insertedRemind != *r {
-		t.Errorf("InsertReminds didn't return a valid remind")
+		t.Errorf("InsertRemind didn't return a valid remind")
 	}
 }
